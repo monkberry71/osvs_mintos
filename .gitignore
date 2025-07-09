@@ -1,0 +1,3 @@
+# Ignore disk images and binary blobs
+*.img
+*.bin

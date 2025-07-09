@@ -55,8 +55,82 @@ push 0
 call PRINT_MSG
 add sp, 6 ;; clean the stack
 
+;;; RESET
+RESET_DISK:
+    mov ax, 0 ;; service number 0 == reset
+    mov dl, 0 ;; drive number 0 == floppy
+    int 0x13
+
+    jc HANDLE_DISK_ERROR ;; if carry flag is set, it means the bios made it, because there was an error
+
+
+    ;; ok no error now
+    mov si, 0x1000
+    mov es, si;
+    mov bx, 0x0000
+
+    mov di, word [ TOTAL_SECTOR_COUNT ]
+
+.READ_DATA:
+    cmp di, 0
+    je READ_END
+    sub di, 0x1
+
+    mov ah, 0x02 ; BIOS Service number 2, read sector
+    
+    mov al, 0x01 ;; sector 1
+    mov ch, byte [TRACK_NUMBER]
+    mov cl, byte [SECTOR_NUMBER]
+    mov dh, byte [HEAD_NUMBER]
+    mov dl, 0x00; BIOS Drive number 0 == floppy
+
+    int 0x13
+    jc HANDLE_DISK_ERROR
+
+    ;; Good, we read 1 sector
+
+    add si, 0x0020
+    mov es, si ; we read 0x200 byte, so increase that many.
+
+    mov al, byte [SECTOR_NUMBER]
+    add al, 0x01
+    mov byte [ SECTOR_NUMBER ], al
+    cmp al, 19
+    jl .READ_DATA ; al - 19 < 0 -> goto READ_DATA
+
+    ;; al == 19
+    xor byte [ HEAD_NUMBER ], 0x01
+    mov byte [ SECTOR_NUMBER ], 0x01
+
+    cmp byte [ HEAD_NUMBER ], 0x00 ;; if toggled result is 0, it was 1, so we need to add track number by one.
+    jne .READ_DATA ;; HEAD_NUMBER != 0 -> goto READ_DATA
+
+    ;; HEAD_NUMBER ==0 
+    add byte [ TRACK_NUMBER ], 0x01
+    jmp .READ_DATA 
+
+READ_END:
+    push LOADING_COMPLETE_MSG
+    push 1
+    push 20
+    call PRINT_MSG
+    add sp, 6
+
+    jmp 0x1000:0x0000
+
+HANDLE_DISK_ERROR:
+    push DISK_ERROR_MSG
+    push 1
+    push 20
+    call PRINT_MSG
+    add sp, 6
+
     jmp $
 
+
+
+
+;;;;;;;; function area ahead
 
 PRINT_MSG:
     push bp
@@ -107,18 +181,26 @@ PRINT_MSG:
     pop bp
 
     ret
-    
 
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; constants? 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; data
 MSG1:
     db 'MINT64 OS WOW!!', 0
+
+DISK_ERROR_MSG:
+    db 'DISK erorr!', 0
 
 IMG_LOADING_MSG:
     db 'Let me load the OS...', 0
 
-jmp $
+LOADING_COMPLETE_MSG:
+    db 'Loading completed',0
+
+SECTOR_NUMBER: db 0x02
+HEAD_NUMBER: db 0x00
+TRACK_NUMBER: db 0x00
 
 times 510 - ($ - $$) db 0x00
 db 0x55
