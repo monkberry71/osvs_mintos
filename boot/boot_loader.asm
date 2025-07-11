@@ -1,4 +1,4 @@
-[ORG 0x00]
+[ORG 0x7C00]
 [BITS 16]
 
 SECTION .text
@@ -9,14 +9,14 @@ SECTION .text
 ; mov byte [0x00], 'M'
 ; mov byte [0x01], 0x4A
 
-jmp 0x07C0:START
+jmp START
 
 TOTAL_SECTOR_COUNT: dw 1024
 
 START: 
     ;; set ds and es register
-    mov ax, 0x07C0
-    mov ds, ax
+    ; mov ax, 0x07C0
+    ; mov ds, ax
     mov ax, 0xB800
     mov es, ax
 
@@ -95,7 +95,7 @@ RESET_DISK:
     mov al, byte [SECTOR_NUMBER]
     add al, 0x01
     mov byte [ SECTOR_NUMBER ], al
-    cmp al, 19
+    cmp al, 37
     jl .READ_DATA ; al - 19 < 0 -> goto READ_DATA
 
     ;; al == 19
@@ -193,7 +193,7 @@ DISK_ERROR_MSG:
     db 'DISK erorr!', 0
 
 IMG_LOADING_MSG:
-    db 'Let me load the OS...', 0
+    db 'Let me load the OS', 0
 
 LOADING_COMPLETE_MSG:
     db 'Loading completed',0

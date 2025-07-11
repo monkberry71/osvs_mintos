@@ -6,14 +6,29 @@ boot_loader:
 	make -C ./boot
 	@echo "==== $@ Complete ===="
 
-disk.img: boot/boot_loader.bin
+32kernel:
+	@echo "==== Building the kernel ===="
+	make -C ./kernel32
+	@echo "==== $@ Complete ===="
+
+disk.img: boot_loader 32kernel
 	@echo "==== Building disk.img ===="
-	cp boot/boot_loader.bin disk.img
+	cat boot/boot_loader.bin kernel32/placeholderOS.bin > disk.img
 	@echo "==== Complete ===="
 
 test: all
-	qemu-system-x86_64 -m 64 -fda disk.img -boot a -M pc
+	qemu-system-x86_64 \
+	-m 64 \
+	-drive format=raw,file=disk.img,if=floppy \
+	-boot a \
+	-M pc \
+	-gdb tcp::1234
+
+
+gdb: all
+	qemu-system-i386 -m 64 -fda disk.img -boot a -M pc -gdb tcp::1234 -S
 
 clean:
 	make -C boot clean
+	make -C kernel32 clean
 	rm -f disk.img
