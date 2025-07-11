@@ -1,7 +1,7 @@
-all: placeholderOS.bin
+all: kernel32.bin
 
-placeholderOS.bin: placeholderOS.asm
+kernel32.bin: entry_point.s
 	nasm -o $@ $<
 
 clean:
-	rm -f placeholderOS.bin
+	rm -f kernel32.bin

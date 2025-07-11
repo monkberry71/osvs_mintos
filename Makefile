@@ -13,7 +13,7 @@ boot_loader:
 
 disk.img: boot_loader 32kernel
 	@echo "==== Building disk.img ===="
-	cat boot/boot_loader.bin kernel32/placeholderOS.bin > disk.img
+	cat boot/boot_loader.bin kernel32/kernel32.bin > disk.img
 	@echo "==== Complete ===="
 
 test: all
@@ -26,7 +26,7 @@ test: all
 
 
 gdb: all
-	qemu-system-i386 -m 64 -fda disk.img -boot a -M pc -gdb tcp::1234 -S
+	qemu-system-x86_64 -m 64 -fda disk.img -boot a -M pc -gdb tcp::1234 -S
 
 clean:
 	make -C boot clean
