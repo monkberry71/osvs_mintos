@@ -4,7 +4,7 @@
 #define WORD unsigned short
 #define DWORD unsigned int
 #define QWORD unsigned long
-#define BOOL
+#define BOOL unsigned char
 
 #define TRUE 1
 #define FALSE 0

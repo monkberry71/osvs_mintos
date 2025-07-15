@@ -1,10 +1,14 @@
 #include "types.h"
 
 void k_print_string(int iX, int iY, const char* pc_string);
+BOOL k_initialize_kernel64_area(void);
 
 void main(void) {
+    DWORD i;
     k_print_string(0, 4, "C Lang Kernel Starting...But maybe a powercut");
 
+    k_initialize_kernel64_area();
+    k_print_string(0,5, "IA-32e Kernel Area init complete.");
     for(;;);
 }
 
@@ -16,4 +20,19 @@ void k_print_string(int iX, int iY, const char* pc_string) {
     for(i=0; pc_string[i]; i++) {
         pst_screen[i].b_char = pc_string[i];
     }
+}
+
+BOOL k_initialize_kernel64_area(void) {
+    DWORD* cur_addr;
+
+    cur_addr = (void*) 0x100000;
+
+    while( (DWORD) cur_addr < 0x600000) {
+        *cur_addr = 0;
+        if(*cur_addr != 0) return FALSE;
+
+        cur_addr++;
+    }
+
+    return TRUE;
 }

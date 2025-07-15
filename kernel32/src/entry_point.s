@@ -8,6 +8,21 @@ START:
     mov ds, ax
     mov es, ax
 
+    ;; Activating A20 via BIOS
+    mov ax, 0x2401 ; A20 gate activation
+    int 0x15
+
+    jc .A20_ERR
+    jmp .A20_SUCCESS
+.A20_ERR:
+    ; now we do it with port
+    in al, 0x92
+    or al, 0x02
+    and al, 0xFE
+    out 0x92, al
+
+.A20_SUCCESS:
+
     cli ;; disable interrupt
     lgdt [ GDTR ]
 
