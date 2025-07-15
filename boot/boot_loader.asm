@@ -11,7 +11,7 @@ SECTION .text
 
 jmp START
 
-TOTAL_SECTOR_COUNT: dw 2
+TOTAL_SECTOR_COUNT: dw 1
 
 START: 
     ;; set ds and es register

@@ -1,7 +1,7 @@
 .PHONY: clean test
 all : boot_loader disk.img
 
-boot_loader:
+boot_loader: 
 	@echo "==== Building $@ ===="
 	make -C ./boot
 	@echo "==== $@ Complete ===="
@@ -13,6 +13,7 @@ boot_loader:
 
 disk.img: boot_loader 32kernel
 	@echo "==== Building disk.img ===="
+	python3 ./boot/boot_sector_editing.py boot/boot_loader.bin kernel32/kernel32.bin
 	cat boot/boot_loader.bin kernel32/kernel32.bin > disk.img
 	@echo "==== Complete ===="
 
