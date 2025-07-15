@@ -4,3 +4,6 @@
 *.raw
 *.dump
 *.log
+*.dep
+*.elf
+*.o

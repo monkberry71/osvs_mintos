@@ -40,7 +40,7 @@ PROTECTED_MODE:
     call PRINT_MSG
     add esp, 12
 
-    jmp $
+    jmp dword 0x08:0x10200
 
 PRINT_MSG:
     push ebp
